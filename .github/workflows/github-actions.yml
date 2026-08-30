@@ -17,6 +17,8 @@ jobs:
           - name: Checkout submodules
             run: |
               git submodule sync --recursive
+              git submodule update --init buildroot || true
+              git -C buildroot fetch --tags origin
               git submodule update --init --recursive
           - uses: webfactory/ssh-agent@v0.5.3
             with:

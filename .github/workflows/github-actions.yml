@@ -1,38 +1,37 @@
 name: assignment-test
 on:
-    push:
-        tags-ignore:
-            - '*'
-        branches:
-            - '*'
+  push:
+    tags-ignore:
+      - '*'
+    branches:
+      - '*'
 jobs:
-    full-test:
-        container: cuaesd/aesd-autotest:24-assignment5-buildroot
-        runs-on: self-hosted
-        timeout-minutes: 120
-        steps:
-          - uses: actions/checkout@v4
-            with:
-              fetch-depth: 0
-          - name: Checkout submodules
-            run: |
-              git submodule sync --recursive
-              git submodule update --init --recursive --assignment-autotest
-              mkdir -p buildroot
-              git -C buildroot init -q 2>/dev/null || true
-              git -C buildroot remote add origin https://gitlab.com/buildroot.org/buildroot.git 2>/dev/null || true
-              git -C buildroot fetch --tags origin
-              git -C buildroot checkout 2024.02.13
-              git -C buildroot fetch --tags origin
-              git submodule update --init --recursive
-          - uses: webfactory/ssh-agent@v0.5.3
-            with:
-              ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          - name: Run full test
-            env:
-              GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
-            run: ./full-test.sh
-          - name: Cleanup
-            if: always()
-            run: |
-              ssh-add -D
+  full-test:
+    container: cuaesd/aesd-autotest:24-assignment5-buildroot
+    runs-on: self-hosted
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Checkout submodules
+        run: |
+          git submodule sync --recursive
+          git submodule update --init assignment-autotest
+          git -C assignment-autotest submodule update --init --recursive
+          mkdir -p buildroot
+          git -C buildroot init -q
+          git -C buildroot remote add origin https://gitlab.com/buildroot.org/buildroot.git
+          git -C buildroot fetch --tags origin
+          git -C buildroot checkout 2024.02.13
+      - uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+      - name: Run full test
+        env:
+          GIT_SSH_COMMAND: "ssh -o StrictHostKeyChecking=no"
+        run: ./full-test.sh
+      - name: Cleanup
+        if: always()
+        run: |
+          ssh-add -D

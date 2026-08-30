@@ -21,7 +21,7 @@ jobs:
           git -C assignment-autotest submodule update --init --recursive
           mkdir -p buildroot
           git -C buildroot init -q
-          git -C buildroot remote add origin https://gitlab.com/buildroot.org/buildroot.git
+          git -C buildroot remote add origin https://gitlab.com/buildroot.org/buildroot.git 2>/dev/null || git -C buildroot remote set-url origin https://gitlab.com/buildroot.org/buildroot.git
           git -C buildroot fetch --tags origin
           git -C buildroot checkout 2024.02.13
       - uses: webfactory/ssh-agent@v0.5.3
